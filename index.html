@@ -1,136 +1,301 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Business Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Dashboard</title>
 
-  <style>
-    body{
-      font-family: Arial;
-      background:#f6f0ff;
-      padding:20px;
-    }
+<style>
 
-    .card{
-      background:white;
-      padding:20px;
-      border-radius:15px;
-      margin-bottom:20px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
 
-    h1{
-      color:#7b4dff;
-    }
+body{
+    background:#f5efff;
+    padding:20px;
+    color:#333;
+}
 
-    input{
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-      border-radius:10px;
-      border:1px solid #ccc;
-    }
+h1{
+    text-align:center;
+    color:#7b4dff;
+    margin-bottom:20px;
+}
 
-    button{
-      background:#7b4dff;
-      color:white;
-      border:none;
-      padding:10px 20px;
-      border-radius:10px;
-      margin-top:10px;
-      cursor:pointer;
-    }
-  </style>
+.dashboard{
+    max-width:1000px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.card h2{
+    color:#7b4dff;
+    margin-bottom:15px;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    outline:none;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px;
+    background:#7b4dff;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+    margin-right:10px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th, td{
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+th{
+    background:#f3ebff;
+}
+
+.summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+.summary-box{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+.summary-box h3{
+    color:#7b4dff;
+    margin-bottom:10px;
+}
+
+.summary-box p{
+    font-size:24px;
+    font-weight:bold;
+}
+
+</style>
 </head>
 
 <body>
 
+<div class="dashboard">
+
 <h1>My Business Dashboard</h1>
 
-<div class="card">
-  <h2>Today's Sales</h2>
-  <input type="number" id="sales" placeholder="Enter today's sales">
+<div class="summary">
+
+<div class="summary-box">
+<h3>Total Sales</h3>
+<p id="totalSales">0</p>
+</div>
+
+<div class="summary-box">
+<h3>Total Inquiries</h3>
+<p id="totalInquiries">0</p>
+</div>
+
+<div class="summary-box">
+<h3>Total Stock</h3>
+<p id="totalStock">0</p>
+</div>
+
 </div>
 
 <div class="card">
-  <h2>Customer Inquiries</h2>
-  <input type="number" id="inquiries" placeholder="Enter inquiries today">
+
+<h2>Add Daily Record</h2>
+
+<input type="date" id="date">
+
+<input type="text" id="product" placeholder="Product Name">
+
+<input type="number" id="sales" placeholder="Sales">
+
+<input type="number" id="inquiries" placeholder="Inquiries">
+
+<input type="number" id="stock" placeholder="Stock Left">
+
+<button onclick="saveRecord()">Save Record</button>
+
+<button onclick="downloadData()">Download Data</button>
+
 </div>
 
 <div class="card">
-  <h2>Stock Left</h2>
-  <input type="number" id="stock" placeholder="Enter stock left">
+
+<h2>Business Records</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Product</th>
+<th>Sales</th>
+<th>Inquiries</th>
+<th>Stock</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="recordTable">
+</tbody>
+
+</table>
+
 </div>
 
-<div class="card">
-  <h2>AI Suggestion</h2>
-
-  <button onclick="analyzeBusiness()">
-    Analyze Business
-  </button>
-
-  <p id="result"></p>
 </div>
 
 <script>
 
-async function analyzeBusiness() {
+let records = JSON.parse(localStorage.getItem("businessRecords")) || [];
 
-  let sales = document.getElementById("sales").value;
-  let inquiries = document.getElementById("inquiries").value;
-  let stock = document.getElementById("stock").value;
+function renderRecords(){
 
-  document.getElementById("result").innerText = "Analyzing...";
+    let table = document.getElementById("recordTable");
 
-  try {
+    table.innerHTML = "";
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCUFEKEL8sGoSwI7_om3lnsN_cLyMkJUVM",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text:
-                  `Sales today: ${sales}
-                  Customer inquiries: ${inquiries}
-                  Stock left: ${stock}
+    let totalSales = 0;
+    let totalInquiries = 0;
+    let totalStock = 0;
 
-                  Give short business advice for my bracelet business.`
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
+    records.forEach((record,index)=>{
 
-    const data = await response.json();
+        totalSales += Number(record.sales);
+        totalInquiries += Number(record.inquiries);
+        totalStock += Number(record.stock);
 
-    console.log(data);
+        table.innerHTML += `
+        <tr>
+            <td>${record.date}</td>
+            <td>${record.product}</td>
+            <td>${record.sales}</td>
+            <td>${record.inquiries}</td>
+            <td>${record.stock}</td>
+            <td>
+                <button onclick="deleteRecord(${index})">
+                Delete
+                </button>
+            </td>
+        </tr>
+        `;
+    });
 
-    if (data.error) {
-      document.getElementById("result").innerText =
-      data.error.message;
-      return;
-    }
+    document.getElementById("totalSales").innerText = totalSales;
 
-    document.getElementById("result").innerText =
-    data.candidates[0].content.parts[0].text;
+    document.getElementById("totalInquiries").innerText = totalInquiries;
 
-  } catch(error) {
-
-    document.getElementById("result").innerText =
-    error.message;
-
-  }
-
+    document.getElementById("totalStock").innerText = totalStock;
 }
 
+function saveRecord(){
+
+    let date = document.getElementById("date").value;
+    let product = document.getElementById("product").value;
+    let sales = document.getElementById("sales").value;
+    let inquiries = document.getElementById("inquiries").value;
+    let stock = document.getElementById("stock").value;
+
+    if(!date || !product){
+        alert("Please fill all important fields");
+        return;
+    }
+
+    let record = {
+        date,
+        product,
+        sales,
+        inquiries,
+        stock
+    };
+
+    records.push(record);
+
+    localStorage.setItem(
+        "businessRecords",
+        JSON.stringify(records)
+    );
+
+    renderRecords();
+
+    document.getElementById("product").value = "";
+    document.getElementById("sales").value = "";
+    document.getElementById("inquiries").value = "";
+    document.getElementById("stock").value = "";
+}
+
+function deleteRecord(index){
+
+    records.splice(index,1);
+
+    localStorage.setItem(
+        "businessRecords",
+        JSON.stringify(records)
+    );
+
+    renderRecords();
+}
+
+function downloadData(){
+
+    let dataStr = JSON.stringify(records,null,2);
+
+    let blob = new Blob(
+        [dataStr],
+        {type:"application/json"}
+    );
+
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+
+    a.href = url;
+
+    a.download = "business-records.json";
+
+    a.click();
+}
+
+renderRecords();
+
 </script>
+
 </body>
 </html>
