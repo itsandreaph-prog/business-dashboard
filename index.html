@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Business Dashboard</title>
+
+  <style>
+    body{
+      font-family: Arial;
+      background:#f6f0ff;
+      padding:20px;
+    }
+
+    .card{
+      background:white;
+      padding:20px;
+      border-radius:15px;
+      margin-bottom:20px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1{
+      color:#7b4dff;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      border-radius:10px;
+      border:1px solid #ccc;
+    }
+
+    button{
+      background:#7b4dff;
+      color:white;
+      border:none;
+      padding:10px 20px;
+      border-radius:10px;
+      margin-top:10px;
+      cursor:pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>My Business Dashboard</h1>
+
+<div class="card">
+  <h2>Today's Sales</h2>
+  <input type="number" id="sales" placeholder="Enter today's sales">
+</div>
+
+<div class="card">
+  <h2>Customer Inquiries</h2>
+  <input type="number" id="inquiries" placeholder="Enter inquiries today">
+</div>
+
+<div class="card">
+  <h2>Stock Left</h2>
+  <input type="number" id="stock" placeholder="Enter stock left">
+</div>
+
+<div class="card">
+  <h2>AI Suggestion</h2>
+
+  <button onclick="analyzeBusiness()">
+    Analyze Business
+  </button>
+
+  <p id="result"></p>
+</div>
+
+<script>
+
+function analyzeBusiness(){
+
+  let sales = document.getElementById("sales").value;
+  let inquiries = document.getElementById("inquiries").value;
+  let stock = document.getElementById("stock").value;
+
+  let advice = "";
+
+  if(sales > 10){
+    advice += "Sales are doing good today. ";
+  }else{
+    advice += "Try posting more reels today. ";
+  }
+
+  if(inquiries > sales){
+    advice += "Many people are interested. Reply faster to customers.";
+  }
+
+  if(stock < 5){
+    advice += " Your stock is getting low.";
+  }
+
+  document.getElementById("result").innerText = advice;
+}
+
+</script>
+
+</body>
+</html>
