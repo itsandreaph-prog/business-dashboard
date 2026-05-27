@@ -1,9 +1,14 @@
+# Advanced Business Dashboard (Full System Layout)
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Business Dashboard</title>
+<title>Advanced Business Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -21,51 +26,85 @@ body{
 }
 
 h1{
-    text-align:center;
     color:#7b4dff;
     margin-bottom:20px;
 }
 
 .dashboard{
-    max-width:1000px;
+    max-width:1400px;
     margin:auto;
+}
+
+.section-title{
+    margin:25px 0 15px;
+    color:#7b4dff;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
 }
 
 .card{
     background:white;
     border-radius:20px;
     padding:20px;
-    margin-bottom:20px;
     box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
 .card h2{
     color:#7b4dff;
     margin-bottom:15px;
+    font-size:20px;
 }
 
-input, select{
+.summary-box{
+    text-align:center;
+}
+
+.summary-box p{
+    font-size:30px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+input, select, textarea{
     width:100%;
     padding:12px;
-    margin-bottom:10px;
+    margin-bottom:12px;
     border-radius:12px;
     border:1px solid #ddd;
     outline:none;
+    font-size:15px;
+}
+
+textarea{
+    resize:none;
+    height:100px;
 }
 
 button{
-    padding:12px 20px;
+    padding:12px 18px;
     border:none;
     border-radius:12px;
     background:#7b4dff;
     color:white;
     cursor:pointer;
-    font-size:15px;
-    margin-right:10px;
+    margin-top:5px;
+    margin-right:8px;
 }
 
 button:hover{
     opacity:0.9;
+}
+
+.delete-btn{
+    background:#ff4d6d;
+}
+
+.edit-btn{
+    background:#ff9f1c;
 }
 
 table{
@@ -75,37 +114,44 @@ table{
 }
 
 th, td{
-    padding:12px;
-    text-align:left;
+    padding:14px;
     border-bottom:1px solid #eee;
+    text-align:left;
 }
 
 th{
     background:#f3ebff;
-}
-
-.summary{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-}
-
-.summary-box{
-    background:white;
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-    text-align:center;
-}
-
-.summary-box h3{
     color:#7b4dff;
-    margin-bottom:10px;
 }
 
-.summary-box p{
-    font-size:24px;
+.low-stock{
+    color:red;
     font-weight:bold;
+}
+
+.good-stock{
+    color:green;
+    font-weight:bold;
+}
+
+.note-box{
+    background:#fff8dc;
+    padding:15px;
+    border-radius:15px;
+    margin-top:10px;
+}
+
+canvas{
+    margin-top:20px;
+}
+
+@media(max-width:800px){
+
+    table{
+        display:block;
+        overflow-x:auto;
+    }
+
 }
 
 </style>
@@ -115,68 +161,138 @@ th{
 
 <div class="dashboard">
 
-<h1>My Business Dashboard</h1>
+<h1>Advanced Business Dashboard</h1>
 
-<div class="summary">
+<!-- SUMMARY -->
 
-<div class="summary-box">
-<h3>Total Sales</h3>
+<h2 class="section-title">Business Summary</h2>
+
+<div class="grid">
+
+<div class="card summary-box">
+<h2>Total Sales</h2>
 <p id="totalSales">0</p>
 </div>
 
-<div class="summary-box">
-<h3>Total Inquiries</h3>
+<div class="card summary-box">
+<h2>Total Profit</h2>
+<p id="totalProfit">0</p>
+</div>
+
+<div class="card summary-box">
+<h2>Total Inquiries</h2>
 <p id="totalInquiries">0</p>
 </div>
 
-<div class="summary-box">
-<h3>Total Stock</h3>
-<p id="totalStock">0</p>
+<div class="card summary-box">
+<h2>Total Expenses</h2>
+<p id="totalExpenses">0</p>
 </div>
 
 </div>
+
+<!-- DAILY RECORD -->
+
+<h2 class="section-title">Daily Business Record</h2>
 
 <div class="card">
-
-<h2>Add Daily Record</h2>
 
 <input type="date" id="date">
 
+<select id="category">
+<option value="Bracelet">Bracelet</option>
+<option value="Polaroid">Polaroid</option>
+<option value="Keychain">Keychain</option>
+<option value="Other">Other</option>
+</select>
+
 <input type="text" id="product" placeholder="Product Name">
 
-<input type="number" id="sales" placeholder="Sales">
+<input type="number" id="sales" placeholder="Sales Amount">
 
-<input type="number" id="inquiries" placeholder="Inquiries">
+<input type="number" id="cost" placeholder="Product Cost">
+
+<input type="number" id="sellingPrice" placeholder="Selling Price">
+
+<input type="number" id="inquiries" placeholder="Customer Inquiries">
 
 <input type="number" id="stock" placeholder="Stock Left">
 
-<button onclick="saveRecord()">Save Record</button>
+<input type="number" id="expenses" placeholder="Expenses Today">
 
-<button onclick="downloadData()">Download Data</button>
+<textarea id="notes" placeholder="Customer requests, trending products, notes..."></textarea>
+
+<button onclick="saveRecord()">Save Record</button>
+<button onclick="downloadCSV()">Download CSV</button>
+<button onclick="downloadTXT()">Download TXT Report</button>
 
 </div>
 
+<!-- FACEBOOK INSIGHTS -->
+
+<h2 class="section-title">Social Media Insights</h2>
+
+<div class="grid">
+
+<div class="card">
+<h2>Facebook Insights</h2>
+<input type="number" id="fbViews" placeholder="Post Views">
+<input type="number" id="fbLikes" placeholder="Likes">
+<input type="number" id="fbShares" placeholder="Shares">
+<input type="number" id="fbReels" placeholder="Reel Views">
+<button onclick="saveSocial()">Save Insights</button>
+</div>
+
+<div class="card">
+<h2>Automatic Suggestions</h2>
+<div class="note-box" id="suggestions">
+No suggestions yet.
+</div>
+</div>
+
+</div>
+
+<!-- RECORD TABLE -->
+
+<h2 class="section-title">Business Records</h2>
+
 <div class="card">
 
-<h2>Business Records</h2>
+<input type="text" id="search" placeholder="Search Product" onkeyup="searchRecords()">
 
 <table>
-
 <thead>
 <tr>
 <th>Date</th>
+<th>Category</th>
 <th>Product</th>
 <th>Sales</th>
-<th>Inquiries</th>
+<th>Profit</th>
 <th>Stock</th>
-<th>Action</th>
+<th>Status</th>
+<th>Actions</th>
 </tr>
 </thead>
-
-<tbody id="recordTable">
-</tbody>
-
+<tbody id="recordTable"></tbody>
 </table>
+
+</div>
+
+<!-- CHARTS -->
+
+<h2 class="section-title">Analytics</h2>
+
+<div class="grid">
+
+<div class="card">
+<h2>Sales Analytics</h2>
+<canvas id="salesChart"></canvas>
+</div>
+
+<div class="card">
+<h2>Social Media Analytics</h2>
+<canvas id="socialChart"></canvas>
+</div>
 
 </div>
 
@@ -184,118 +300,298 @@ th{
 
 <script>
 
-let records = JSON.parse(localStorage.getItem("businessRecords")) || [];
-
-function renderRecords(){
-
-    let table = document.getElementById("recordTable");
-
-    table.innerHTML = "";
-
-    let totalSales = 0;
-    let totalInquiries = 0;
-    let totalStock = 0;
-
-    records.forEach((record,index)=>{
-
-        totalSales += Number(record.sales);
-        totalInquiries += Number(record.inquiries);
-        totalStock += Number(record.stock);
-
-        table.innerHTML += `
-        <tr>
-            <td>${record.date}</td>
-            <td>${record.product}</td>
-            <td>${record.sales}</td>
-            <td>${record.inquiries}</td>
-            <td>${record.stock}</td>
-            <td>
-                <button onclick="deleteRecord(${index})">
-                Delete
-                </button>
-            </td>
-        </tr>
-        `;
-    });
-
-    document.getElementById("totalSales").innerText = totalSales;
-
-    document.getElementById("totalInquiries").innerText = totalInquiries;
-
-    document.getElementById("totalStock").innerText = totalStock;
-}
+let records = JSON.parse(localStorage.getItem("records")) || [];
+let social = JSON.parse(localStorage.getItem("social")) || [];
 
 function saveRecord(){
 
     let date = document.getElementById("date").value;
+    let category = document.getElementById("category").value;
     let product = document.getElementById("product").value;
-    let sales = document.getElementById("sales").value;
-    let inquiries = document.getElementById("inquiries").value;
-    let stock = document.getElementById("stock").value;
+    let sales = Number(document.getElementById("sales").value);
+    let cost = Number(document.getElementById("cost").value);
+    let sellingPrice = Number(document.getElementById("sellingPrice").value);
+    let inquiries = Number(document.getElementById("inquiries").value);
+    let stock = Number(document.getElementById("stock").value);
+    let expenses = Number(document.getElementById("expenses").value);
+    let notes = document.getElementById("notes").value;
 
-    if(!date || !product){
-        alert("Please fill all important fields");
-        return;
-    }
+    let profit = sellingPrice - cost;
 
     let record = {
         date,
+        category,
         product,
         sales,
+        profit,
         inquiries,
-        stock
+        stock,
+        expenses,
+        notes
     };
 
     records.push(record);
 
-    localStorage.setItem(
-        "businessRecords",
-        JSON.stringify(records)
-    );
+    localStorage.setItem("records", JSON.stringify(records));
 
     renderRecords();
+    generateSuggestions();
+    updateCharts();
+}
 
-    document.getElementById("product").value = "";
-    document.getElementById("sales").value = "";
-    document.getElementById("inquiries").value = "";
-    document.getElementById("stock").value = "";
+function renderRecords(){
+
+    let table = document.getElementById("recordTable");
+    table.innerHTML = "";
+
+    let totalSales = 0;
+    let totalProfit = 0;
+    let totalInquiries = 0;
+    let totalExpenses = 0;
+
+    records.forEach((record,index)=>{
+
+        totalSales += record.sales;
+        totalProfit += record.profit;
+        totalInquiries += record.inquiries;
+        totalExpenses += record.expenses;
+
+        let status = record.stock <= 5
+        ? "<span class='low-stock'>Low Stock</span>"
+        : "<span class='good-stock'>Good</span>";
+
+        table.innerHTML += `
+        <tr>
+        <td>${record.date}</td>
+        <td>${record.category}</td>
+        <td>${record.product}</td>
+        <td>${record.sales}</td>
+        <td>${record.profit}</td>
+        <td>${record.stock}</td>
+        <td>${status}</td>
+        <td>
+        <button class='delete-btn' onclick='deleteRecord(${index})'>Delete</button>
+        </td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("totalSales").innerText = totalSales;
+    document.getElementById("totalProfit").innerText = totalProfit;
+    document.getElementById("totalInquiries").innerText = totalInquiries;
+    document.getElementById("totalExpenses").innerText = totalExpenses;
 }
 
 function deleteRecord(index){
 
     records.splice(index,1);
 
-    localStorage.setItem(
-        "businessRecords",
-        JSON.stringify(records)
-    );
+    localStorage.setItem("records", JSON.stringify(records));
 
     renderRecords();
+    generateSuggestions();
+    updateCharts();
 }
 
-function downloadData(){
+function saveSocial(){
 
-    let dataStr = JSON.stringify(records,null,2);
+    let fbViews = Number(document.getElementById("fbViews").value);
+    let fbLikes = Number(document.getElementById("fbLikes").value);
+    let fbShares = Number(document.getElementById("fbShares").value);
+    let fbReels = Number(document.getElementById("fbReels").value);
 
-    let blob = new Blob(
-        [dataStr],
-        {type:"application/json"}
-    );
+    social.push({
+        fbViews,
+        fbLikes,
+        fbShares,
+        fbReels
+    });
+
+    localStorage.setItem("social", JSON.stringify(social));
+
+    generateSuggestions();
+    updateCharts();
+}
+
+function generateSuggestions(){
+
+    let text = "";
+
+    let lowStock = records.filter(r => r.stock <= 5);
+
+    if(lowStock.length > 0){
+        text += "Restock your low-stock products.<br><br>";
+    }
+
+    let highInquiry = records.filter(r => r.inquiries > r.sales);
+
+    if(highInquiry.length > 0){
+        text += "Customers are interested. Improve replies and posting consistency.<br><br>";
+    }
+
+    if(social.length > 0){
+
+        let latest = social[social.length - 1];
+
+        if(latest.fbShares > latest.fbLikes){
+            text += "Your content is shareable. Post more reels and carousel posts.<br><br>";
+        }
+
+        if(latest.fbReels > latest.fbViews / 2){
+            text += "Reels are performing strongly. Focus more on short-form content.<br><br>";
+        }
+    }
+
+    if(text === ""){
+        text = "Business is doing well today.";
+    }
+
+    document.getElementById("suggestions").innerHTML = text;
+}
+
+function searchRecords(){
+
+    let input = document.getElementById("search").value.toLowerCase();
+
+    let rows = document.querySelectorAll("#recordTable tr");
+
+    rows.forEach(row => {
+
+        let product = row.children[2].innerText.toLowerCase();
+
+        row.style.display = product.includes(input)
+        ? ""
+        : "none";
+    });
+}
+
+function downloadCSV(){
+
+    let csv = "Date,Category,Product,Sales,Profit,Inquiries,Stock,Expenses,Notes\n";
+
+    records.forEach(r=>{
+
+        csv += `${r.date},${r.category},${r.product},${r.sales},${r.profit},${r.inquiries},${r.stock},${r.expenses},${r.notes}\n`;
+
+    });
+
+    let blob = new Blob([csv], {type:"text/csv"});
 
     let url = URL.createObjectURL(blob);
 
     let a = document.createElement("a");
 
     a.href = url;
-
-    a.download = "business-records.json";
-
+    a.download = "business-records.csv";
     a.click();
 }
 
+function downloadTXT(){
+
+    let text = "BUSINESS REPORT\n\n";
+
+    records.forEach(r=>{
+
+        text += `Date: ${r.date}\n`;
+        text += `Category: ${r.category}\n`;
+        text += `Product: ${r.product}\n`;
+        text += `Sales: ${r.sales}\n`;
+        text += `Profit: ${r.profit}\n`;
+        text += `Inquiries: ${r.inquiries}\n`;
+        text += `Stock: ${r.stock}\n`;
+        text += `Expenses: ${r.expenses}\n`;
+        text += `Notes: ${r.notes}\n`;
+        text += `-------------------------\n`;
+
+    });
+
+    let blob = new Blob([text], {type:"text/plain"});
+
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+
+    a.href = url;
+    a.download = "business-report.txt";
+    a.click();
+}
+
+let salesChart;
+let socialChart;
+
+function updateCharts(){
+
+    let labels = records.map(r => r.product);
+    let salesData = records.map(r => r.sales);
+
+    if(salesChart){
+        salesChart.destroy();
+    }
+
+    salesChart = new Chart(document.getElementById("salesChart"), {
+        type:'bar',
+        data:{
+            labels: labels,
+            datasets:[{
+                label:'Sales',
+                data:salesData
+            }]
+        }
+    });
+
+    if(socialChart){
+        socialChart.destroy();
+    }
+
+    let latest = social[social.length - 1] || {
+        fbViews:0,
+        fbLikes:0,
+        fbShares:0,
+        fbReels:0
+    };
+
+    socialChart = new Chart(document.getElementById("socialChart"), {
+        type:'pie',
+        data:{
+            labels:['Views','Likes','Shares','Reels'],
+            datasets:[{
+                data:[
+                    latest.fbViews,
+                    latest.fbLikes,
+                    latest.fbShares,
+                    latest.fbReels
+                ]
+            }]
+        }
+    });
+}
+
 renderRecords();
+generateSuggestions();
+updateCharts();
 
 </script>
 
 </body>
 </html>
+```
+
+## Features Included
+
+* Business Summary Boxes
+* Sales Tracker
+* Profit Tracker
+* Expenses Tracker
+* Customer Inquiries
+* Product Categories
+* Automatic Suggestions
+* Facebook Insights Input
+* Search Bar
+* Download CSV
+* Download TXT Report
+* Charts & Analytics
+* Low Stock Warning
+* Notes System
+* Local Storage Save
+* Mobile Friendly Layout
